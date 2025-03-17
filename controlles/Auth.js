@@ -331,34 +331,31 @@ exports.googleAuth = async (req, res) => {
         let user = await User.findOne({ email: payload.email });
 
         if (!user) {
-            // Create a new user
-            // Create an associated Profile for the user
+            
             const profile = new Profile({
-                firstName: payload.given_name || "FirstName", // Default first name if not available
-                lastName: payload.family_name || "LastName",  // Default last name if not available
-                bio: "This user has not provided a bio.", // Default bio or empty string
-                socialLinks: [] // Default to empty array
+                firstName: payload.given_name || "FirstName", 
+                lastName: payload.family_name || "LastName",  
+                bio: "This user has not provided a bio.", 
+                socialLinks: [] 
             });
 
             await profile.save();
-
-            // Create a new User record
             user = new User({
                 email: payload.email,
                 fullName: payload.name,
                 image: payload.picture,
-                role: "User", // Default role as "User"
-                accountType: "User", // Default account type
-                additionalDetails: profile._id, // Reference to the profile
-                password: "",  // No password needed for Google login
+                role: "User", 
+                accountType: "User", 
+                additionalDetails: profile._id, 
+                password: "", 
                 courses: [],
                 courseProgress: []
             });
 
             await user.save();
-            console.log(`🆕 New user registered: ${payload.email}`);
+            console.log(` New user registered: ${payload.email}`);
         } else {
-            console.log(`✅ User logged in: ${payload.email}`);
+            console.log(` User logged in: ${payload.email}`);
         }
 
         // Generate JWT Token
@@ -398,7 +395,7 @@ exports.googleAuth = async (req, res) => {
         // });
 
     } catch (error) {
-        console.error("❌ Google Authentication Error:", error);
+        console.error(" Google Authentication Error:", error);
         return res.status(500).json({
             success: false,
             message: "Google authentication failed",
