@@ -1,7 +1,8 @@
 const express = require('express')
-const { chat } = require('../controlles/chatMessage')
+const { Message } = require('../controlles/chatMessage')
 const router = express.Router()
 
-router.get('/:userId/:otherUserId', chat)
+router.get('/:senderId/:receiverId',Message )
+
 
 module.exports = router 
