@@ -10,7 +10,8 @@ const { default: axios } = require('axios');
 const CLIENT_ID = 'Ov23ligfc6pF1NY0FC8f';
 const CLIENT_SECRET = 'e7b569453ef21dd815f4116095aa2447ff38d1d8';
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
+const UserEnvironment = require('../models/Detect');
+const { getClientIp } = require('../utils/ipUtills');
 
 // send OTP 
 
@@ -522,4 +523,54 @@ exports.getGithubUser = async (req, res) => {
             error: error.response?.data || error.message
         });
     }
+};
+
+
+
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+exports.detect = async (req, res) => {
+  try {
+    const userData = req.body;
+    
+    // Transform network data to match schema
+    const networkData = {
+      type: userData.network?.type?.toLowerCase() || 'unknown',
+      downlink: Number(userData.network?.downlink) || 0,
+      rtt: Number(userData.network?.rtt) || 0
+    };
+
+    // Ensure network type is one of the allowed values
+    const allowedNetworkTypes = ['wifi', 'cellular', 'ethernet', 'unknown', '4g', '3g', '2g'];
+    if (!allowedNetworkTypes.includes(networkData.type)) {
+      networkData.type = 'unknown';
+    }
+
+    // Create the complete data object
+    const environmentRecord = new UserEnvironment({
+      ...userData,
+      network: networkData,
+      // Include other transformations as needed
+    });
+
+    await environmentRecord.save();
+    
+    res.status(200).json({ 
+      success: true,
+      message: 'User environment data saved successfully'
+    });
+  } catch (error) {
+    console.error('Error saving user data:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to save user environment data',
+      details: error.message
+    });
+  }
 };

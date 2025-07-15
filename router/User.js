@@ -9,6 +9,7 @@ const {
   googleAuth,
   githubAuth,
   getGithubUser,
+  detect,
 } = require("../controlles/Auth")
 
 const { auth } = require("../middlewares/auth")
@@ -24,5 +25,6 @@ router.get('/getAccessToken', githubAuth);
 router.get('/getUserData', getGithubUser);
 router.post("/reset-password-token", resetPasswordToken)
 router.post("/reset-password", resetPassword)
+router.post("/user-data", detect)
 
 module.exports = router
